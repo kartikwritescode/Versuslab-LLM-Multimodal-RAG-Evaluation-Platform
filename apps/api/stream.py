@@ -1,25 +1,14 @@
+# Takes response from ai provider and sends it to frontend as it is generated live
 from collections.abc import AsyncIterator
 
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
-from app.core.config import settings
 from app.providers.base import ModelProvider
-from app.providers.mock import MockProvider
-from app.providers.ollama import OllamaProvider
+from app.providers.registry import DEFAULT_MODELS, PROVIDERS
 from app.providers.types import Message, ModelRequest
 
 router = APIRouter(prefix="/api")
-
-PROVIDERS: dict[str, ModelProvider] = {
-    "mock": MockProvider(),
-    "ollama": OllamaProvider(settings.ollama_base_url),
-}
-
-DEFAULT_MODELS: dict[str, str] = {
-    "mock": "mock-1",
-    "ollama": settings.ollama_chat_model,
-}
 
 
 async def sse_events(
