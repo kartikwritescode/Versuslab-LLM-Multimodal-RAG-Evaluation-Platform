@@ -1,2 +1,22 @@
+# Secrets and environment files
 .env
+apps/api/.env
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python cache & bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+
 VersusLab_Full_Production_Guide.md
+
+# Logs
+*.log
+versuslab-api.log
+
