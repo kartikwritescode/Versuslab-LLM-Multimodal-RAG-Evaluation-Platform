@@ -1,0 +1,12 @@
+{
+  "dataset_name": "VersusLab Core Seed Benchmark",
+  "dataset_version": 1,
+  "model": "mock:mock-1",
+  "metrics": {
+    "exact_match": 1.0,
+    "error_rate": 0.0,
+    "timeout_rate": 0.0
+  },
+  "tolerance": 0.0,
+  "description": "Committed CI regression baseline for VersusLab. MockProvider produces deterministic answers for CI test cases. Any drop below 1.0 or non-zero error rate fails CI."
+}

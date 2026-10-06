@@ -1,0 +1,150 @@
+{
+  "name": "VersusLab Core Seed Benchmark",
+  "description": "Standard 24-case multi-category evaluation benchmark for VersusLab model testing across factual QA, reasoning, structured coding, and RAG retrieval.",
+  "cases": [
+    {
+      "category": "factual",
+      "question": "What is the capital of France?",
+      "expected_answer": "Paris",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "factual",
+      "question": "What is the chemical symbol for Gold?",
+      "expected_answer": "Au",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "factual",
+      "question": "Who wrote the dystopian novel '1984'?",
+      "expected_answer": "George Orwell",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "factual",
+      "question": "Approximately what is the speed of light in vacuum in kilometers per second?",
+      "expected_answer": "300000",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "factual",
+      "question": "What is the first element on the periodic table of elements?",
+      "expected_answer": "Hydrogen",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "factual",
+      "question": "Which planet is closest to the Sun in our solar system?",
+      "expected_answer": "Mercury",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "reasoning",
+      "question": "All roses are flowers. All flowers require water to grow. Do roses require water to grow? Answer strictly with Yes or No.",
+      "expected_answer": "Yes",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "reasoning",
+      "question": "A father is 3 times as old as his son. In 10 years, the sum of their ages will be 76. How old is the son now?",
+      "expected_answer": "14",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "reasoning",
+      "question": "If 5 people shake hands with each other once, how many handshakes occur in total?",
+      "expected_answer": "10",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "reasoning",
+      "question": "You start facing North. You turn 90 degrees clockwise, then 90 degrees clockwise again. Which cardinal direction are you facing?",
+      "expected_answer": "South",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "reasoning",
+      "question": "What is the minimum number of coins needed to make 36 cents using standard US quarters (25c), dimes (10c), nickels (5c), and pennies (1c)?",
+      "expected_answer": "3",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "reasoning",
+      "question": "Which month of the calendar year has fewer than 30 days in a common year?",
+      "expected_answer": "February",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "coding",
+      "question": "Output a valid JSON object with exactly two keys: 'status' set to 'ok' and 'code' set to 200.",
+      "expected_answer": "{\"status\": \"ok\", \"code\": 200}",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "coding",
+      "question": "Write a Python list containing the first 4 prime numbers in ascending order.",
+      "expected_answer": "[2, 3, 5, 7]",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "coding",
+      "question": "Write a regular expression pattern that matches an exact sequence of 3 digits from start to end.",
+      "expected_answer": "^\\d{3}$",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "coding",
+      "question": "Is the string 'radar' a palindrome? Answer strictly with True or False.",
+      "expected_answer": "True",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "coding",
+      "question": "Output a valid JSON object representing a person with keys 'name' and 'age'.",
+      "expected_answer": "{\"name\": \"Alice\", \"age\": 30}",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "coding",
+      "question": "What is the reverse of the string 'VersusLab'?",
+      "expected_answer": "baLsusreV",
+      "gold_chunk_ids": null
+    },
+    {
+      "category": "rag",
+      "question": "Where was VersusLab founded according to the archive lore?",
+      "expected_answer": "Kepler-442b",
+      "gold_chunk_ids": ["c-0"]
+    },
+    {
+      "category": "rag",
+      "question": "What celestial body serves as the primary energy source for the VersusLab research station?",
+      "expected_answer": "Stella-9",
+      "gold_chunk_ids": ["c-1"]
+    },
+    {
+      "category": "rag",
+      "question": "What is the name of the ancient protocol used to evaluate multi-model experiments in the archive?",
+      "expected_answer": "Galactic Protocol of Monotonic Stamping",
+      "gold_chunk_ids": ["c-2"]
+    },
+    {
+      "category": "rag",
+      "question": "What is the standard smoothing constant k used in VersusLab's Reciprocal Rank Fusion?",
+      "expected_answer": "60",
+      "gold_chunk_ids": ["c-3"]
+    },
+    {
+      "category": "rag",
+      "question": "Which cryptographic algorithm is used to hash the shared RAG context across all contenders?",
+      "expected_answer": "SHA-256",
+      "gold_chunk_ids": ["c-4"]
+    },
+    {
+      "category": "rag",
+      "question": "What exact delimiter token marks the beginning of untrusted reference documents in VersusLab?",
+      "expected_answer": "=== BEGIN UNTRUSTED REFERENCE DOCUMENTS ===",
+      "gold_chunk_ids": ["c-5"]
+    }
+  ]
+}
