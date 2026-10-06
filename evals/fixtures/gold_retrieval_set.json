@@ -1,0 +1,26 @@
+[
+  {
+    "id": "gold-q1",
+    "query": "Where was VersusLab founded and in what year?",
+    "document_filename": "versus_lore.txt",
+    "document_id": "doc-lore-001",
+    "gold_chunk_ids": ["c-0"],
+    "notes": "Answer found in chunk 0: Kepler-442b in 2026"
+  },
+  {
+    "id": "gold-q2",
+    "query": "What is the primary energy source for VersusLab?",
+    "document_filename": "versus_lore.txt",
+    "document_id": "doc-lore-001",
+    "gold_chunk_ids": ["c-1"],
+    "notes": "Answer found in chunk 1: captured blue hypergiant star Stella-9"
+  },
+  {
+    "id": "gold-q3",
+    "query": "What ancient protocol is used to evaluate experiments?",
+    "document_filename": "versus_lore.txt",
+    "document_id": "doc-lore-001",
+    "gold_chunk_ids": ["c-2"],
+    "notes": "Answer found in chunk 2: Galactic Protocol of Monotonic Stamping"
+  }
+]
