@@ -1,0 +1,89 @@
+# ==============================================================================
+# VersusLab Local Infrastructure (PostgreSQL + Observability Stack)
+#
+# Usage:
+#   docker compose -f infra/docker-compose.yml up -d
+#   docker compose -f infra/docker-compose.yml down
+# ==============================================================================
+
+services:
+  # 1. PostgreSQL with pgvector extension
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: versuslab-postgres
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-versuslab}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-versuslab}
+      POSTGRES_DB: ${POSTGRES_DB:-versuslab}
+    volumes:
+      - versuslab_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-versuslab} -d ${POSTGRES_DB:-versuslab}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Jaeger (All-In-One: OTLP Receiver + Trace Visualization UI)
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: versuslab-jaeger
+    restart: unless-stopped
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "16686:16686" # Jaeger Web UI
+      - "14268:14268"
+
+  # 3. OpenTelemetry Collector (Contrib)
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: versuslab-otel-collector
+    restart: unless-stopped
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
+    depends_on:
+      - jaeger
+
+  # 4. Prometheus (Metrics Scraper & Time-Series DB)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: versuslab-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - versuslab_promdata:/prometheus
+    ports:
+      - "9090:9090"
+
+  # 5. Grafana (Dashboard Visualizer)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: versuslab-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - versuslab_grafanadata:/var/lib/grafana
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+
+volumes:
+  versuslab_pgdata:
+    name: versuslab_pgdata
+  versuslab_promdata:
+    name: versuslab_promdata
+  versuslab_grafanadata:
+    name: versuslab_grafanadata

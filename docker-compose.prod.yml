@@ -1,0 +1,133 @@
+# ==============================================================================
+# VersusLab Production-Like Local Environment
+#
+# Usage:
+#   docker compose -f docker-compose.prod.yml build
+#   docker compose -f docker-compose.prod.yml up -d
+#   docker compose -f docker-compose.prod.yml down
+# ==============================================================================
+
+services:
+  # 1. PostgreSQL with pgvector extension
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: versuslab-prod-postgres
+    restart: unless-stopped
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-versuslab}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-versuslab}
+      POSTGRES_DB: ${POSTGRES_DB:-versuslab}
+    volumes:
+      - versuslab_prod_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-versuslab} -d ${POSTGRES_DB:-versuslab}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. FastAPI Backend API
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: versuslab-prod-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-versuslab}:${POSTGRES_PASSWORD:-versuslab}@postgres:5432/${POSTGRES_DB:-versuslab}
+      OTEL_ENABLED: "true"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
+      OTEL_SERVICE_NAME: "versuslab-api"
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-$argon2id$v=19$m=65536,t=3,p=4$ATMUOT3NjHGMGBi4yJ8Qjw$+N2Jdrzuej32NBq72GFqoRZnet8/RDYwBWZaphR4FCg}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-versuslab-prod-jwt-secret-key-must-be-long-and-secure}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      XAI_API_KEY: ${XAI_API_KEY:-}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+
+  # 3. Next.js Frontend Web Application
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: versuslab-prod-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: "http://api:8000"
+    depends_on:
+      - api
+
+  # 4. Jaeger (Tracing UI & Collector)
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: versuslab-prod-jaeger
+    restart: unless-stopped
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    ports:
+      - "16686:16686" # Trace UI
+
+  # 5. OpenTelemetry Collector (Contrib)
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: versuslab-prod-otel-collector
+    restart: unless-stopped
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./infra/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    depends_on:
+      - jaeger
+
+  # 6. Prometheus (Metrics Time-Series Engine)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: versuslab-prod-prometheus
+    restart: unless-stopped
+    volumes:
+      - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - versuslab_prod_promdata:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - api
+
+  # 7. Grafana (Starter Operational Dashboard)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: versuslab-prod-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./infra/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./infra/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - versuslab_prod_grafanadata:/var/lib/grafana
+    ports:
+      - "3001:3000"
+    depends_on:
+      - prometheus
+
+volumes:
+  versuslab_prod_pgdata:
+    name: versuslab_prod_pgdata
+  versuslab_prod_promdata:
+    name: versuslab_prod_promdata
+  versuslab_prod_grafanadata:
+    name: versuslab_prod_grafanadata
